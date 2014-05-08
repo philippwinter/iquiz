@@ -1,0 +1,31 @@
+/******************************************************************************
+ * This work is applicable to the conditions of the MIT License,              *
+ * which can be found in the LICENSE file, or at                              *
+ * https://github.com/philippwinter/pacman/blob/master/LICENSE                *
+ *                                                                            *
+ * Copyright (c) 2014 Philipp Winter, Marcel Toerschen & Jan Geissler         *
+ ******************************************************************************/
+
+apply plugin: 'java'
+apply plugin: 'jacoco'
+
+sourceCompatibility = 1.7
+version = '0.1'
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'iQuiz', 'Implementation-Version': version, 'Main-Class': 'controller.MainController'
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+jacoco {
+    reportsDir = file("$buildDir/coverage")
+}
+
+dependencies {
+    //testCompile group: 'junit', name: 'junit', version: '4.+'
+}
