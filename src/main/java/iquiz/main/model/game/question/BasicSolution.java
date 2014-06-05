@@ -12,11 +12,13 @@
  */
 package iquiz.main.model.game.question;
 
+import java.io.Serializable;
+
 /**
  *
  * @author HTS1205U13
  */
-public abstract class BasicSolution {
+public abstract class BasicSolution implements Serializable {
 
     private boolean isCorrect;
 

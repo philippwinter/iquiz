@@ -12,13 +12,14 @@
  */
 package iquiz.main.model.game.question;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  *
  * @author HTS1205U13
  */
-public abstract class BasicQuestion {
+public abstract class BasicQuestion implements Serializable{
 
     private String questionText;
 

@@ -8,8 +8,11 @@
 
 package iquiz.main.model.game;
 
+import java.io.Serializable;
+
 /**
  * Created by philipp on 08.05.14.
  */
-public class Statistic {
+public class Statistic implements Serializable {
+
 }

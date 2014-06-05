@@ -19,5 +19,5 @@ package iquiz.main.controller;
 public interface BasicController {
     
     public abstract void initialize();
-    
+
 }

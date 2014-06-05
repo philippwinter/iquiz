@@ -13,6 +13,9 @@
 package iquiz.main.controller;
 
 import iquiz.client.controller.ClientController;
+import iquiz.main.model.Logging;
+import iquiz.main.model.game.Language;
+import iquiz.main.model.game.Player;
 import iquiz.server.controller.ServerController;
 
 /**
@@ -22,6 +25,8 @@ import iquiz.server.controller.ServerController;
 public class MainController implements BasicController {
 
     public static OperatingSystem OS;
+    public static final double VERSION = 0.1;
+    public static final double PROTOCOL_VERSION = 1.0;
 
     private static MainController instance;
     private static MainController.Type type;
@@ -44,7 +49,7 @@ public class MainController implements BasicController {
             MainController.OS = OperatingSystem.UNKNOWN;
         }
 
-        System.out.println("System type: " + MainController.OS);
+        Logging.log(Logging.Priority.VERBOSE, "System type: " + MainController.OS);
     }
 
     public static MainController getInstance() {
@@ -98,12 +103,12 @@ public class MainController implements BasicController {
     }
 
     private void initializeClient() {
-        this.client = new ClientController();
+        this.client = ClientController.getInstance();
         this.client.initialize();
     }
 
     private void initializeServer() {
-        this.server = new ServerController();
+        this.server = ServerController.getInstance();
         this.server.initialize();
     }
 }

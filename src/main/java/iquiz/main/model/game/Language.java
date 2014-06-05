@@ -6,13 +6,12 @@
  * Copyright (c) 2014 Philipp Winter, Marcel Toerschen & Jan Geissler         *
  ******************************************************************************/
 
-package iquiz.main.model.network;
+package iquiz.main.model.game;
 
 /**
- * Created by philipp on 08.05.14.
+ * Created by philipp on 10.05.14.
  */
-public class ProtocolConstants {
-
-    public final static String endStatement = "-<END>-";
-
+public enum Language {
+    ENGLISH,
+    GERMAN
 }

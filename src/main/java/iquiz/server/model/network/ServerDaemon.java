@@ -8,8 +8,7 @@
 
 package iquiz.server.model.network;
 
-import iquiz.client.model.network.ClientConnection;
-import iquiz.main.model.network.Connection;
+import iquiz.main.model.Logging;
 import iquiz.server.controller.ServerController;
 
 import java.io.IOException;
@@ -28,14 +27,29 @@ public class ServerDaemon extends Thread {
     private boolean running = false;
 
     public ServerDaemon() {
+        this.setDaemon(true);
         this.connections = new Vector<>();
 
         try {
             this.serverSocket = new ServerSocket(ServerController.PORT);
+            Logging.log(Logging.Priority.DEBUG, "Server daemon listening on port " + ServerController.PORT + " now!");
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    public void haltAll() {
+        this.running = false;
+        for(ClientConnection con : this.connections){
+            con.halt();
+        }
+    }
+
+    public void continueAll() {
+        this.running = true;
+        for(ClientConnection con : this.connections){
+            con.continueExecution();
+        }
     }
 
     public Vector<ClientConnection> getConnections() {
@@ -57,6 +71,7 @@ public class ServerDaemon extends Thread {
             try {
                 Socket socket = serverSocket.accept();
                 ClientConnection connection = new ClientConnection(socket);
+                Logging.log(Logging.Priority.MESSAGE, "Got new connection");
                 connection.start();
                 this.connections.add(connection);
             } catch (IOException e) {

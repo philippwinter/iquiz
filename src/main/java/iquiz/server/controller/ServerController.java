@@ -24,6 +24,14 @@ public class ServerController implements BasicController {
     public static final int PORT = 1234;
 
     private ServerDaemon serverDaemon;
+    private static ServerController instance;
+
+    public static ServerController getInstance() {
+        if(instance == null){
+            instance = new ServerController();
+        }
+        return instance;
+    }
 
     @Override
     public void initialize() {
