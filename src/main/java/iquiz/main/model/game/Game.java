@@ -28,9 +28,8 @@ public class Game implements Serializable {
     public static Game factory(Player playerOne, Player playerTwo) {
         Game game = new Game(playerOne, playerTwo);
 
-
-            playerOne.getGames().add(game);
-            playerTwo.getGames().add(game);
+        playerOne.getGames().add(game);
+        playerTwo.getGames().add(game);
 
         return game;
     }
@@ -44,7 +43,6 @@ public class Game implements Serializable {
         for(int i = 0; i < QUESTIONS_PER_GAME; i++){
             this.questions.add(BasicQuestion.factory());
         }
-
     }
 
     public Player getOpponent(Player forPlayer){

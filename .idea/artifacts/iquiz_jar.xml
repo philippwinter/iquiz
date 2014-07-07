@@ -1,0 +1,12 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="iquiz:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/iquiz_jar</output-path>
+    <root id="archive" name="iquiz.jar">
+      <element id="module-output" name="iquiz" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/ext/jars/communication.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/ext/jars/jgoodies-forms-1.8.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/ext/jars/jgoodies-common-1.8.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/ext/jars/jcalendar-1.4.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

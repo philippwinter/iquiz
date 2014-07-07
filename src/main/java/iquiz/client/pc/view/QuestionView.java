@@ -10,6 +10,7 @@ package iquiz.client.pc.view;
 
 import iquiz.client.controller.ClientController;
 import iquiz.main.model.Logging;
+import iquiz.main.model.game.Game;
 import iquiz.main.model.game.Player;
 import iquiz.main.model.game.question.*;
 
@@ -27,6 +28,7 @@ public class QuestionView extends ShowableView {
     protected final int sizeY = 1;
 
     private final Player player;
+    private final Game game;
     private final BasicQuestion question;
     private JPanel pnlQuestion;
     private JPanel pnlMultipleChoice;
@@ -43,8 +45,9 @@ public class QuestionView extends ShowableView {
 
     private Timer timer;
 
-    public QuestionView(Player player, BasicQuestion question){
+    public QuestionView(Player player, Game game, BasicQuestion question){
         this.player = player;
+        this.game = game;
         this.question = question;
 
         this.frameSize = new Dimension(sizeX, sizeY);
@@ -90,7 +93,7 @@ public class QuestionView extends ShowableView {
         this.btnBottomRight.setBackground(Color.RED);
 
         this.question.getChosenAnswers().put(this.player, new IllegalSolution());
-        ClientController.getInstance().pushIllegalSolution(question);
+        ClientController.getInstance().pushIllegalSolution(question, this.game.getOpponent(this.player));
         this.frame.dispose();
     }
 
@@ -173,7 +176,7 @@ public class QuestionView extends ShowableView {
         }
 
         Logging.log(Logging.Priority.MESSAGE, "Chose", solution);
-        ClientController.getInstance().pushSolution(question, solution);
+        ClientController.getInstance().pushSolution(question, solution, this.game.getOpponent(this.player));
         this.frame.dispose();
     }
 
@@ -181,7 +184,7 @@ public class QuestionView extends ShowableView {
         this.deactivateButtons();
 
         Logging.log(Logging.Priority.MESSAGE, "Chose", i);
-        ClientController.getInstance().pushSolution(question, i);
+        ClientController.getInstance().pushSolution(question, i, this.game.getOpponent(this.player));
         this.frame.dispose();
     }
 }

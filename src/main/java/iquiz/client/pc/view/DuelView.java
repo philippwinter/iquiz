@@ -105,7 +105,9 @@ public class DuelView extends ShowableView {
             JLabel lblOpponent = new JLabel(textOpponent);
             if(solutionOpponent != null){
                 Color colorOpponent;
-                if(solutionOpponent.isCorrect()){
+                if(solutionOwn == null){
+                    colorOpponent = Color.BLACK;
+                }else if(solutionOpponent.isCorrect()){
                     scoreOpponent++;
                     colorOpponent = Color.GREEN;
                 }else{
@@ -119,7 +121,7 @@ public class DuelView extends ShowableView {
                 playLabel.addMouseListener(new MouseAdapter() {
                     @Override
                     public void mouseClicked(MouseEvent e){
-                        QuestionView qv = new QuestionView(ownPlayer, question);
+                        QuestionView qv = new QuestionView(ownPlayer, relatedGame, question);
                         DuelView.this.frame.setVisible(false);
                         qv.frame.addWindowListener(questionViewWindowListener);
                     }

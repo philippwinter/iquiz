@@ -193,11 +193,13 @@ public class ServerConnection extends Connection {
         return success;
     }
 
-    public void doPush(BasicQuestion question, BasicSolution solution) {
+    public void doPush(BasicQuestion question, BasicSolution solution, String opponentName) {
         boolean success;
 
         try {
             this.socket.write(Protocol.BEGIN_PUSH + Protocol.SEPARATOR + "\n");
+
+            this.socket.write(opponentName + "\n");
 
             this.outputStream.writeObject(question);
             this.outputStream.writeObject(solution);

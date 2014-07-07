@@ -77,6 +77,7 @@ public class ClientConnection extends Connection {
     }
 
     private void handlePullFromClient(String message) throws IOException, ClassNotFoundException {
+        String opponentName = this.socket.readLine();
         BasicQuestion question = (BasicQuestion) inputStream.readObject();
         BasicSolution solution = (BasicSolution) inputStream.readObject();
 
@@ -87,9 +88,26 @@ public class ClientConnection extends Connection {
         Logging.log(Logging.Priority.MESSAGE, "Got", solution.getText(), "for", question.getQuestionText());
 
         if(question instanceof MultipleChoiceQuestion){
-            MultipleChoiceQuestion mc = QuestionPool.getInstance().getMultipleChoiceQuestions().get(question.getQuestionText());
-            mc.getChosenAnswers().put(this.getRelatedPlayer(), solution);
-            Logging.log(Logging.Priority.MESSAGE, "Saved " + mc.getChosenAnswers().get(this.getRelatedPlayer()), "to answers");
+            boolean foundOwn = false;
+            boolean foundOpponent = false;
+
+            for(Game g : this.getRelatedPlayer().getGames()){
+                int index = g.getQuestions().indexOf(question);
+                if(index != -1){
+                    g.getQuestions().get(index).getChosenAnswers().put(this.getRelatedPlayer(), solution);
+                    foundOwn = true;
+                }
+            }
+
+            for(Game g : Player.get(opponentName).getGames()){
+                int index = g.getQuestions().indexOf(question);
+                if(index != -1){
+                    g.getQuestions().get(index).getChosenAnswers().put(this.getRelatedPlayer(), solution);
+                    foundOpponent = true;
+                }
+            }
+
+            Logging.log(Logging.Priority.MESSAGE, "Saved solution successfully: own=", foundOwn, "opponent=", foundOpponent);
             this.socket.write(Protocol.END_PUSH + "\n");
         }else {
             Logging.log(Logging.Priority.ERROR, "Got illegal type");
@@ -157,7 +175,7 @@ public class ClientConnection extends Connection {
 
         Player player = Player.get(username);
 
-        if(player.getPasswordHash().equals(passwordHash)){
+        if(player != null && player.getPasswordHash().equals(passwordHash)){
             this.outputStream.writeObject(player);
             this.socket.write(Protocol.ACCEPT_AUTHENTICATION + "\n");
             this.setRelatedPlayer(player);

@@ -176,18 +176,18 @@ public class ClientController implements BasicController {
         Logging.log(Logging.Priority.MESSAGE, "Pushing was", (success ? "" : "un") + "successful");
     }
 
-    public void pushSolution(BasicQuestion question, BasicSolution solution) {
+    public void pushSolution(BasicQuestion question, BasicSolution solution, Player opponent) {
         question.getChosenAnswers().put(this.getConnection().getRelatedPlayer(), solution);
-        this.connection.doPush(question, solution);
+        this.connection.doPush(question, solution, opponent.getUsername());
     }
 
-    public void pushSolution(BasicQuestion question, Double i) {
+    public void pushSolution(BasicQuestion question, Double i, Player opponent) {
         NumberSolution solution = new NumberSolution(i, false);
         question.getChosenAnswers().put(this.getConnection().getRelatedPlayer(), solution);
-        this.connection.doPush(question, solution);
+        this.connection.doPush(question, solution, opponent.getUsername());
     }
 
-    public void pushIllegalSolution(BasicQuestion question) {
-        this.connection.doPush(question, null);
+    public void pushIllegalSolution(BasicQuestion question, Player player) {
+        this.connection.doPush(question, null, player.getUsername());
     }
 }
