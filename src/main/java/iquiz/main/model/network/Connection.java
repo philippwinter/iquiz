@@ -9,11 +9,12 @@
 package iquiz.main.model.network;
 
 import iquiz.main.model.Logging;
-import iquiz.main.model.game.Language;
 import iquiz.main.model.game.Player;
 import socketio.Socket;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 /**
  * Created by philipp on 08.05.14.
@@ -21,14 +22,24 @@ import java.io.IOException;
 public abstract class Connection extends Thread {
 
     protected Socket socket;
+    protected ObjectOutputStream outputStream;
+    protected ObjectInputStream inputStream;
+
     protected boolean running;
-    private Player currentPlayer = null;
+    private Player relatedPlayer = null;
 
     public Connection(Socket socket) {
         this.setDaemon(true);
         this.setName(this.getClass().getSimpleName() + " (Thread "  + this.getId() + ")");
         this.socket = socket;
         this.socket.connect();
+
+        try {
+            this.outputStream = new ObjectOutputStream(socket.getOutputStream());
+            this.inputStream = new ObjectInputStream(socket.getInputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -40,7 +51,7 @@ public abstract class Connection extends Thread {
                 if(running){
                     try {
                         doDaemonWork();
-                    } catch (IOException e) {
+                    } catch (IOException | ClassNotFoundException e) {
                         e.printStackTrace();
                     }
                 }
@@ -52,7 +63,7 @@ public abstract class Connection extends Thread {
 
     protected abstract boolean authenticate();
 
-    protected abstract void doDaemonWork() throws IOException;
+    protected abstract void doDaemonWork() throws IOException, ClassNotFoundException;
 
     public boolean isRunning() {
         return running;
@@ -80,11 +91,11 @@ public abstract class Connection extends Thread {
         }
     }
 
-    public Player getCurrentPlayer() {
-        return currentPlayer;
+    public Player getRelatedPlayer() {
+        return relatedPlayer;
     }
 
-    protected void setCurrentPlayer(Player currentPlayer) {
-        this.currentPlayer = currentPlayer;
+    protected void setRelatedPlayer(Player relatedPlayer) {
+        this.relatedPlayer = relatedPlayer;
     }
 }

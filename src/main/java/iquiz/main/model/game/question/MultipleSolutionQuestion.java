@@ -14,27 +14,16 @@ import java.util.Collections;
 /**
  * Created by philipp on 08.05.14.
  */
-public abstract class MultipleSolutionQuestion extends BasicQuestion {
+public abstract class MultipleSolutionQuestion<E> extends BasicQuestion implements Cloneable {
 
-    public ArrayList<BasicSolution> getSolutions() {
-        return solutions;
+    public void setSolutions(ArrayList<E> solutions) {
+        this.solutions = solutions;
     }
 
-    private ArrayList<BasicSolution> solutions;
+    protected ArrayList<E> solutions;
 
     protected MultipleSolutionQuestion(Category category) {
         super(category);
     }
 
-    @Override
-    protected void selectQuestion() {
-        this.setQuestionText("2 Kokosnüsse hängen an der Palme. Jan schüttelt kräftig daran. Wie viele fallen runter?");
-
-        solutions.add(new TextSolution("Alle", true));
-        solutions.add(new TextSolution("1", false));
-        solutions.add(new TextSolution("Keine", false));
-        solutions.add(new TextSolution("2", false));
-
-        Collections.shuffle(this.solutions);
-    }
 }

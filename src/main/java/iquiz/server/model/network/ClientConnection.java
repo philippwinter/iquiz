@@ -10,16 +10,17 @@ package iquiz.server.model.network;
 
 import iquiz.main.controller.MainController;
 import iquiz.main.model.Logging;
+import iquiz.main.model.game.Game;
 import iquiz.main.model.game.Language;
 import iquiz.main.model.game.Player;
+import iquiz.main.model.game.question.*;
 import iquiz.main.model.network.Connection;
 import iquiz.main.model.network.Protocol;
 import socketio.Socket;
 
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.util.Date;
+import java.util.Vector;
 
 /**
  * Created by philipp on 08.05.14.
@@ -51,11 +52,11 @@ public class ClientConnection extends Connection {
     }
 
     @Override
-    protected void doDaemonWork() throws IOException {
+    protected void doDaemonWork() throws IOException, ClassNotFoundException {
         this.handleInput(this.socket.readLine());
     }
 
-    private void handleInput(String message) throws IOException {
+    private void handleInput(String message) throws IOException, ClassNotFoundException {
         Logging.log(Logging.Priority.DEBUG, message);
 
         if (message.startsWith(Protocol.BEGIN_AUTHENTICATION)) {
@@ -65,20 +66,65 @@ public class ClientConnection extends Connection {
         } else if (message.equals("PING")) {
             this.socket.write("PONG\n");
         } else if (message.startsWith(Protocol.BEGIN_REFRESH)) {
-            this.handleRefresh(message);
+            this.handlePushToClient(message);
+        } else if(message.startsWith(Protocol.BEGIN_GAME_REQUEST)){
+            this.handleGameRequest(message);
+        } else if(message.startsWith(Protocol.BEGIN_PUSH)){
+            this.handlePullFromClient(message);
         } else {
             Logging.log(Logging.Priority.ERROR, "Cannot handle this yet");
         }
     }
 
-    private void handleRefresh(String message) throws IOException {
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream(this.socket.getOutputStream());
-        objectOutputStream.writeObject(this.getCurrentPlayer());
+    private void handlePullFromClient(String message) throws IOException, ClassNotFoundException {
+        BasicQuestion question = (BasicQuestion) inputStream.readObject();
+        BasicSolution solution = (BasicSolution) inputStream.readObject();
+
+        if(solution == null){
+            solution = new IllegalSolution();
+        }
+
+        Logging.log(Logging.Priority.MESSAGE, "Got", solution.getText(), "for", question.getQuestionText());
+
+        if(question instanceof MultipleChoiceQuestion){
+            MultipleChoiceQuestion mc = QuestionPool.getInstance().getMultipleChoiceQuestions().get(question.getQuestionText());
+            mc.getChosenAnswers().put(this.getRelatedPlayer(), solution);
+            Logging.log(Logging.Priority.MESSAGE, "Saved " + mc.getChosenAnswers().get(this.getRelatedPlayer()), "to answers");
+            this.socket.write(Protocol.END_PUSH + "\n");
+        }else {
+            Logging.log(Logging.Priority.ERROR, "Got illegal type");
+        }
+    }
+
+    private void handleGameRequest(String message) throws IOException {
+        String name = Protocol.split(message)[1];
+        Logging.log(Logging.Priority.MESSAGE, "Handling game request of ", this.getRelatedPlayer().getUsername(), " against ", name);
+        Player opponent = Player.get(name);
+
+            if (opponent != null && !opponent.equals(this.getRelatedPlayer())) {
+                Game.factory(this.getRelatedPlayer(), opponent);
+
+                this.socket.write(Protocol.ACCEPT + Protocol.SEPARATOR + Protocol.END_GAME_REQUEST + "\n");
+            }else{
+                this.socket.write(Protocol.DECLINE + Protocol.SEPARATOR + Protocol.END_GAME_REQUEST + "\n");
+                Logging.log(Logging.Priority.ERROR, "Declined game");
+            }
+    }
+
+    private void handlePushToClient(String message) throws IOException {
+        Logging.log(Logging.Priority.MESSAGE, "Sending updated gamelist");
+
+        Vector<Game> games = this.getRelatedPlayer().getGames();
+
+        outputStream.writeInt(games.size());
+        for(Game g : games){
+            outputStream.writeObject(g);
+        }
 
         this.socket.write(Protocol.END_REFRESH + "\n");
     }
 
-    private void handleRegistration(String message) {
+    private void handleRegistration(String message) throws IOException {
         String[] values = Protocol.split(message);
         String name = values[1];
         String username = values[2];
@@ -90,22 +136,15 @@ public class ClientConnection extends Connection {
 
         Player result = Player.factory(name, username, passwordHash, email, sex, language, birthday);
 
-        try {
             if (result == null) {
                 this.socket.write(Protocol.DECLINE + "\n");
             } else {
                 this.socket.write(Protocol.ACCEPT + "\n");
 
-                this.setCurrentPlayer(result);
+                this.setRelatedPlayer(result);
 
-                OutputStream outputStream = this.socket.getOutputStream();
-                ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
-                objectOutputStream.writeObject(result);
+                outputStream.writeObject(result);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
     }
 
     private void handleLogin(String message) throws IOException {
@@ -118,6 +157,12 @@ public class ClientConnection extends Connection {
 
         Player player = Player.get(username);
 
-        this.socket.write((player.getPasswordHash().equals(passwordHash) ? Protocol.ACCEPT_AUTHENTICATION : Protocol.DECLINE_AUTHENTICATION) + "\n");
+        if(player.getPasswordHash().equals(passwordHash)){
+            this.outputStream.writeObject(player);
+            this.socket.write(Protocol.ACCEPT_AUTHENTICATION + "\n");
+            this.setRelatedPlayer(player);
+        }else{
+            this.socket.write((Protocol.DECLINE_AUTHENTICATION) + "\n");
+        }
     }
 }

@@ -9,11 +9,13 @@
 package iquiz.main.model.game;
 
 import iquiz.main.model.Helper;
+import iquiz.main.model.game.question.BasicSolution;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Vector;
 
 /**
  * Created by philipp on 08.05.14.
@@ -25,7 +27,7 @@ public class Player implements Serializable {
 
     private long id;
     private String username;
-    private String name;
+    private String nickname;
     private String passwordHash;
     private String email;
     private Sex sex;
@@ -33,18 +35,41 @@ public class Player implements Serializable {
     private Statistic statistic;
     private Date birthday;
 
-    private ArrayList<Game> lastGames;
+    private Vector<Game> games;
 
     static {
         playerPool = new HashMap<>();
-        Player playerOne = new Player("phisa", "Philipp Winter", Helper.generateHash("lol"), "philipp.winter11@googlemail.com", Sex.MALE, Language.ENGLISH, new Date(1998, 5, 22));
-        playerPool.put(playerOne.getUsername(), playerOne);
-    }
 
-    private ArrayList<Game> runningGames;
+        Player playerOne = new Player("phisa", "Philipp Winter", Helper.generateHash("lol"), "philipp.winter11@googlemail.com", Sex.MALE, Language.ENGLISH, new Date(1998, 5, 22));
+        Player playerTwo = new Player("jan", "Janus Schleudermän", Helper.generateHash("aha"), "janus@anus.com", Sex.MALE, Language.ENGLISH, new Date(1996, 1, 3));
+        Player playerThree = new Player("marshall", "Marcel Törschen", Helper.generateHash("yoyo"), "marceldamuddafckin@gmail.com", Sex.MALE, Language.ENGLISH, new Date(1995, 1, 1));
+
+        put(playerOne);
+        put(playerTwo);
+        put(playerThree);
+
+        Game g1 = Game.factory(playerOne, playerTwo);
+        Game g2 = Game.factory(playerOne, playerThree);
+
+        for(int i = 0; i < Game.QUESTIONS_PER_GAME; i++){
+            ArrayList<BasicSolution> solutions = g1.getQuestions().get(i).getSolutions();
+
+            if(solutions.size() != 0){
+                BasicSolution solution1 = solutions.get((int) (solutions.size() * Math.random()));
+                BasicSolution solution2 = solutions.get((int) (solutions.size() * Math.random()));
+
+                g1.getQuestions().get(i).getChosenAnswers().put(playerOne, solution1);
+                g1.getQuestions().get(i).getChosenAnswers().put(playerTwo, solution2);
+            }
+        }
+    }
 
     public static Player get(String username) {
         return Player.playerPool.get(username);
+    }
+
+    private static void put(Player player){
+        playerPool.put(player.getUsername(), player);
     }
 
     public static Player factory(String username, String name, String passwordHash, String email, Sex sex, Language language, Date birthday) {
@@ -55,14 +80,14 @@ public class Player implements Serializable {
         }
     }
 
-    private Player(String username, String name, String passwordHash, String email, Sex sex, Language language, Date birthday) {
-        this(++nextPlayerId, username, name, passwordHash, email, sex, language, birthday);
+    private Player(String username, String nickname, String passwordHash, String email, Sex sex, Language language, Date birthday) {
+        this(++nextPlayerId, username, nickname, passwordHash, email, sex, language, birthday);
     }
 
-    private Player(long id, String username, String name, String passwordHash, String email, Sex sex, Language language, Date birthday) {
+    private Player(long id, String username, String nickname, String passwordHash, String email, Sex sex, Language language, Date birthday) {
         this.id = id;
         this.username = username;
-        this.name = name;
+        this.nickname = nickname;
         this.passwordHash = passwordHash;
         this.email = email;
         this.sex = sex;
@@ -70,8 +95,7 @@ public class Player implements Serializable {
         this.birthday = birthday;
 
         this.statistic = new Statistic();
-        this.lastGames = new ArrayList<>();
-        this.runningGames = new ArrayList<>();
+        this.games = new Vector<>();
     }
 
     public String toString() {
@@ -108,13 +132,8 @@ public class Player implements Serializable {
         sb.append("Statistic:\t");
         sb.append(statistic);
         sb.append(";\n");
-
-        sb.append("Last Games:\t");
-        sb.append(lastGames);
-        sb.append(";\n");
-
         sb.append("Running Games:\t");
-        sb.append(runningGames);
+        sb.append(games);
         sb.append(";\n");
 
         return sb.toString();
@@ -128,8 +147,8 @@ public class Player implements Serializable {
         return username;
     }
 
-    public String getName() {
-        return name;
+    public String getNickname() {
+        return nickname;
     }
 
     public String getPasswordHash() {
@@ -156,12 +175,12 @@ public class Player implements Serializable {
         return birthday;
     }
 
-    public ArrayList<Game> getLastGames() {
-        return lastGames;
+    public Vector<Game> getGames() {
+        return games;
     }
 
-    public ArrayList<Game> getRunningGames() {
-        return runningGames;
+    public void setGames(Vector<Game> games) {
+        this.games = games;
     }
 
     public enum Sex {

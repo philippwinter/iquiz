@@ -17,8 +17,12 @@ import iquiz.client.pc.view.MainView;
 import iquiz.main.controller.BasicController;
 import iquiz.main.controller.MainController;
 import iquiz.main.model.Logging;
+import iquiz.main.model.game.Game;
 import iquiz.main.model.game.Language;
 import iquiz.main.model.game.Player;
+import iquiz.main.model.game.question.BasicQuestion;
+import iquiz.main.model.game.question.BasicSolution;
+import iquiz.main.model.game.question.NumberSolution;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -139,15 +143,51 @@ public class ClientController implements BasicController {
         }
     }
 
-    public void refreshData() {
-        this.connection.doDataRefresh();
+    public void pullData() {
+        this.connection.doDataPull();
     }
 
-    public void showDuel(Player contrahent) {
-        Logging.log(Logging.Priority.ERROR, "Not implemented yet: Duel against", contrahent);
+    public void showDuel(Game game) {
+        switch(MainController.OS){
+            case UNKNOWN:
+            case WINDOWS:
+            case MAC_OS_X:
+                MainView.getInstance().showGame(game);
+                break;
+            case ANDROID:
+            default:
+                throw new RuntimeException("Cannot do anything weil problem");
+        }
     }
 
     public void requestForGame(String opponent) {
-        Logging.log(Logging.Priority.ERROR, "Not implemented yet: Request game against", opponent);
+        if(opponent != null && opponent.length() > 0){
+            if(this.connection.doRequestForGame(opponent)){
+                MainView.getInstance().getGameView().refresh();
+            }
+        }
+    }
+
+    public void pullDataCallback(boolean success) {
+        this.mainView.getGameView().refresh();
+    }
+
+    public void pushSolutionCallback(boolean success) {
+        Logging.log(Logging.Priority.MESSAGE, "Pushing was", (success ? "" : "un") + "successful");
+    }
+
+    public void pushSolution(BasicQuestion question, BasicSolution solution) {
+        question.getChosenAnswers().put(this.getConnection().getRelatedPlayer(), solution);
+        this.connection.doPush(question, solution);
+    }
+
+    public void pushSolution(BasicQuestion question, Double i) {
+        NumberSolution solution = new NumberSolution(i, false);
+        question.getChosenAnswers().put(this.getConnection().getRelatedPlayer(), solution);
+        this.connection.doPush(question, solution);
+    }
+
+    public void pushIllegalSolution(BasicQuestion question) {
+        this.connection.doPush(question, null);
     }
 }

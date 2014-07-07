@@ -12,15 +12,18 @@ import iquiz.client.controller.ClientController;
 import iquiz.main.controller.MainController;
 import iquiz.main.model.Helper;
 import iquiz.main.model.Logging;
+import iquiz.main.model.game.Game;
 import iquiz.main.model.game.Language;
 import iquiz.main.model.game.Player;
+import iquiz.main.model.game.question.BasicQuestion;
+import iquiz.main.model.game.question.BasicSolution;
 import iquiz.main.model.network.Connection;
 import iquiz.main.model.network.Protocol;
 import socketio.Socket;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.Date;
+import java.util.Vector;
 
 /**
  * Created by philipp on 08.05.14.
@@ -80,8 +83,14 @@ public class ServerConnection extends Connection {
                     "\n"
             );
 
-            success = this.socket.readLine().equals(Protocol.ACCEPT_AUTHENTICATION);
-        } catch (IOException e) {
+            Player player = (Player) inputStream.readObject();
+
+            success = this.socket.readLine().equals(Protocol.ACCEPT_AUTHENTICATION) && player != null;
+
+            if(success){
+                this.setRelatedPlayer(player);
+            }
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
 
@@ -112,11 +121,10 @@ public class ServerConnection extends Connection {
             success = this.socket.readLine().equals(Protocol.ACCEPT);
 
             if(success){
-                ObjectInputStream objectInputStream = new ObjectInputStream(this.socket.getInputStream());
-                Player player = (Player) objectInputStream.readObject();
+                Player player = (Player) inputStream.readObject();
 
                 Logging.log(Logging.Priority.MESSAGE, player);
-                this.setCurrentPlayer(player);
+                this.setRelatedPlayer(player);
             }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -125,22 +133,81 @@ public class ServerConnection extends Connection {
         ClientController.getInstance().registrationCallback(success);
     }
 
-    public boolean doDataRefresh() {
+    public boolean doDataPull() {
         boolean success = false;
 
         try {
             this.socket.write(Protocol.BEGIN_REFRESH + "\n");
 
-            ObjectInputStream objectInputStream = new ObjectInputStream(this.socket.getInputStream());
-            Player player = (Player) objectInputStream.readObject();
+            int sizeOfRunningGames = inputStream.readInt();
 
-            Logging.log(Logging.Priority.MESSAGE, "Refreshed data", player);
+            Vector<Game> newGames = new Vector<>(sizeOfRunningGames);
+
+            for(int i = 0; i < sizeOfRunningGames; i++){
+                Game g = (Game) inputStream.readObject();
+                newGames.add(g);
+            }
 
             success = this.socket.readLine().equals(Protocol.END_REFRESH);
+            Logging.log(Logging.Priority.MESSAGE, "Expected size", sizeOfRunningGames, "Real size", newGames.size());
+
+            if(success){
+                this.getRelatedPlayer().setGames(newGames);
+                if(this.getRelatedPlayer().getGames() == newGames){
+                    Logging.log(Logging.Priority.MESSAGE, "Refreshed data");
+                }else{
+                    Logging.log(Logging.Priority.ERROR, "new games not changed correctly");
+                }
+            }else{
+                Logging.log(Logging.Priority.ERROR, "Refreshed data is corrupt", newGames);
+            }
+
+            ClientController.getInstance().pullDataCallback(success);
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
 
         return success;
+    }
+
+    public boolean doRequestForGame(String opponent) {
+        boolean success = false;
+
+        try {
+            this.socket.write(Protocol.BEGIN_GAME_REQUEST + Protocol.SEPARATOR + opponent + "\n");
+
+            String message = this.socket.readLine();
+            success = message.startsWith(Protocol.ACCEPT);
+
+            if(success){
+                this.doDataPull();
+            }else{
+                Logging.log(Logging.Priority.ERROR, "Message was",message);
+            }
+
+            Logging.log(Logging.Priority.MESSAGE, "Game created:", success ? "true" : "false");
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+
+        return success;
+    }
+
+    public void doPush(BasicQuestion question, BasicSolution solution) {
+        boolean success;
+
+        try {
+            this.socket.write(Protocol.BEGIN_PUSH + Protocol.SEPARATOR + "\n");
+
+            this.outputStream.writeObject(question);
+            this.outputStream.writeObject(solution);
+
+            success = this.socket.readLine().startsWith(Protocol.END_PUSH);
+
+            ClientController.getInstance().pushSolutionCallback(success);
+        }catch (IOException e){
+            e.printStackTrace();
+            ClientController.getInstance().pushSolutionCallback(false);
+        }
     }
 }

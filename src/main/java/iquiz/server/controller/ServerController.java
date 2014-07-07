@@ -14,6 +14,7 @@ package iquiz.server.controller;
 
 import iquiz.main.controller.BasicController;
 import iquiz.server.model.network.ServerDaemon;
+import iquiz.server.view.ServerCommandLineView;
 
 /**
  *
@@ -22,7 +23,6 @@ import iquiz.server.model.network.ServerDaemon;
 public class ServerController implements BasicController {
 
     public static final int PORT = 1234;
-
     private ServerDaemon serverDaemon;
     private static ServerController instance;
 
@@ -37,6 +37,12 @@ public class ServerController implements BasicController {
     public void initialize() {
         this.serverDaemon = new ServerDaemon();
         this.serverDaemon.start();
+
+        new ServerCommandLineView().start();
+    }
+
+    public ServerDaemon getServerDaemon() {
+        return serverDaemon;
     }
     
 }

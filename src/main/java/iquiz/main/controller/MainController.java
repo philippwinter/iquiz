@@ -18,6 +18,8 @@ import iquiz.main.model.game.Language;
 import iquiz.main.model.game.Player;
 import iquiz.server.controller.ServerController;
 
+import java.util.Scanner;
+
 /**
  *
  * @author HTS1205U13
@@ -35,7 +37,7 @@ public class MainController implements BasicController {
     private ClientController client;
     
     static {
-        MainController.type = MainController.Type.CLIENT_AND_SERVER;
+        MainController.type = defineType();
 
         String osIdentifier = System.getProperty("os.name");
 
@@ -50,6 +52,15 @@ public class MainController implements BasicController {
         }
 
         Logging.log(Logging.Priority.VERBOSE, "System type: " + MainController.OS);
+    }
+
+    private static Type defineType() {
+        System.out.println("Enter which function this instance should have\n" +
+                "-\tCLIENT\n" +
+                "-\tSERVER\n" +
+                "-\tCLIENT_AND_SERVER");
+        Scanner s = new Scanner(System.in);
+        return Type.valueOf(s.nextLine().toUpperCase());
     }
 
     public static MainController getInstance() {

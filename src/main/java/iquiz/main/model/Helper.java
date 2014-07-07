@@ -8,6 +8,9 @@
 
 package iquiz.main.model;
 
+import iquiz.main.model.game.question.BasicSolution;
+
+import javax.swing.*;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -39,4 +42,7 @@ public class Helper {
         return result;
     }
 
+    public static String stringify(Object o) {
+            return o != null ? o.toString() : "Not answered yet";
+    }
 }

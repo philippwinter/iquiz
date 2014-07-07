@@ -27,7 +27,7 @@ public class ServerDaemon extends Thread {
     private boolean running = false;
 
     public ServerDaemon() {
-        this.setDaemon(true);
+        this.setDaemon(false);
         this.connections = new Vector<>();
 
         try {

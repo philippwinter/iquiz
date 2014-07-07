@@ -12,20 +12,26 @@
  */
 package iquiz.main.model.game.question;
 
+
 /**
  *
  * @author HTS1205U13
  */
-public class MultipleChoiceQuestion extends MultipleSolutionQuestion {
+public class MultipleChoiceQuestion extends MultipleSolutionQuestion<TextSolution> implements Cloneable {
 
     protected MultipleChoiceQuestion(Category category) {
         super(category);
     }
 
     @Override
-    protected void selectQuestion() {
-        throw new RuntimeException("Not supported yet");
+    public MultipleChoiceQuestion clone() throws CloneNotSupportedException {
+        super.clone();
+        MultipleChoiceQuestion mc = new MultipleChoiceQuestion(this.category);
+        mc.setQuestionText(this.getQuestionText());
+        for(BasicSolution s : this.getSolutions()){
+            mc.getSolutions().add(new TextSolution(s.getText(), s.isCorrect()));
+        }
+
+        return mc;
     }
-
-
 }

@@ -13,6 +13,13 @@ sourceCompatibility = 1.7
 version = '0.1'
 
 jar {
+    dependencies {
+        compile files("./ext/jars/communication.jar")
+        compile files("./ext/jars/jcalendar-1.4.jar")
+        compile files("./ext/jars/jgoodies-common-1.8.0.jar")
+        compile files("./ext/jars/jgoodies-forms-1.8.0.jar")
+    }
+
     manifest {
         attributes 'Implementation-Title': 'iQuiz', 'Implementation-Version': version, 'Main-Class': 'controller.MainController'
     }

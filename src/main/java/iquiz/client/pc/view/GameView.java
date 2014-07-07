@@ -12,10 +12,13 @@ import iquiz.client.controller.ClientController;
 import iquiz.main.model.Logging;
 import iquiz.main.model.game.Game;
 import iquiz.main.model.game.Player;
+import iquiz.main.model.game.Statistic;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Vector;
 
 /**
  * Created by philipp on 20.05.14.
@@ -27,48 +30,62 @@ public class GameView {
     private JButton btnStatistics;
     private JPanel pnlIconButtons;
     private JButton refreshButton;
-    private JButton settingsButton;
     private JPanel pnlRunningGames;
-    private JLabel lblRunningGames;
 
     public void refresh() {
-        this.pnlRunningGames.removeAll();
-        this.pnlRunningGames.add(this.lblRunningGames);
+        Logging.log(Logging.Priority.MESSAGE, "Repainting data in game view. Data must have been fetched before manually!");
 
-        Player player = ClientController.getInstance().getConnection().getCurrentPlayer();
+        this.initializeRunningGamesPanel();
+    }
 
-        Logging.log(Logging.Priority.MESSAGE, "Refreshing data in game view.", player);
+    private void initializeRunningGamesPanel(){
+        initializeRunningGamesPanel(ClientController.getInstance().getConnection().getRelatedPlayer());
+    }
 
-        for(Game game : player.getRunningGames()){
-            //final DataEnabledButton<Player> button = new DataEnabledButton<>(game.getContrahent(player).getName(), game.getContrahent(player));
+    private void initializeRunningGamesPanel(final Player player) {
+        JPanel panel = new JPanel(new FlowLayout());
 
-            final Player contrahent = game.getContrahent(player);
-            JButton button = new JButton(contrahent.getName());
+        Vector<Game> runningGames = player.getGames();
+        for(final Game game : runningGames){
+            JButton button = new JButton(game.getOpponent(player).getNickname());
 
             button.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    ClientController.getInstance().showDuel(contrahent);
+                    ClientController.getInstance().showDuel(game);
                 }
             });
+
+            panel.add(button);
+
+            Logging.log(Logging.Priority.MESSAGE, "Created button for game", game.getShortDescription());
         }
 
-
+        this.pnlRunningGames.removeAll();
+        this.pnlRunningGames.add(panel);
+        this.pnlRunningGames.revalidate();
+        this.pnlRunningGames.repaint();
     }
 
     public GameView() {
         refreshButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ClientController.getInstance().refreshData();
+                ClientController.getInstance().pullData();
+                initializeRunningGamesPanel();
             }
         });
         btnStartNewGame.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO: Open dialog to ask for the username and dispatch it to the controller
                 String enemyUsername =  JOptionPane.showInputDialog(MainView.getInstance().getFrame(), "Enter the username of your opponent:", "");
                 ClientController.getInstance().requestForGame(enemyUsername);
+            }
+        });
+        btnStatistics.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(MainView.getInstance().getFrame(), Statistic.buildMessage(ClientController.getInstance().getConnection().getRelatedPlayer()), "Statistics", JOptionPane.PLAIN_MESSAGE, null);
             }
         });
     }
@@ -78,13 +95,4 @@ public class GameView {
     }
 
     public JPanel getPnlRunningGames() { return pnlRunningGames; }
-
-    private class DataEnabledButton<T> extends JButton {
-        final T data;
-
-        public DataEnabledButton(String text, T data){
-            this.data = data;
-        }
-    }
-
 }

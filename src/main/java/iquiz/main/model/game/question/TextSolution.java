@@ -13,18 +13,7 @@ package iquiz.main.model.game.question;
  */
 public class TextSolution extends BasicSolution {
 
-    private String answerText;
-
     public TextSolution(String answerText, boolean isCorrect){
-        super(isCorrect);
-        this.setAnswerText(answerText);
-    }
-
-    public String getAnswerText() {
-        return answerText;
-    }
-
-    protected void setAnswerText(String answerText) {
-        this.answerText = answerText;
+        super(answerText, isCorrect);
     }
 }

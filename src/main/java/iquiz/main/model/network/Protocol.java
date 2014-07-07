@@ -39,6 +39,13 @@ public class Protocol {
     public static final String BEGIN_REFRESH = "-<BEGIN_REFRESH>-";
     public static final String END_REFRESH = "-<END_REFRESH>-";
 
+    public static final String BEGIN_GAME_REQUEST = "-<BEGIN_GAME_REQUEST>-";
+    public static final String END_GAME_REQUEST = "-<END_GAME_REQUEST>-";
+
+    public static final String BEGIN_PUSH = "-<BEGIN_PUSH>-";
+    public static final String END_PUSH = "-<END_PUSH>-";
+    public static final String MULTIPLE_CHOICE = "-<MULTIPLE_CHOICE>-";
+
     public static String[] split(String message){
         return message.split(Pattern.quote(SEPARATOR));
     }

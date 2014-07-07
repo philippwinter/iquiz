@@ -18,14 +18,8 @@ package iquiz.main.model.game.question;
  */
 public class EstimationQuestion extends BasicQuestion {
 
-    private long answer;
-
     protected EstimationQuestion(Category category) {
         super(category);
     }
 
-    @Override
-    protected void selectQuestion() {
-        throw new RuntimeException("Not supported yet");
-    }
 }

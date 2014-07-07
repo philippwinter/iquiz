@@ -9,7 +9,7 @@
 package iquiz.client.pc.view;
 
 import iquiz.client.controller.ClientController;
-import iquiz.main.controller.MainController;
+import iquiz.main.model.game.Game;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,7 +17,7 @@ import java.awt.*;
 /**
  * Created by philipp on 09.05.14.
  */
-public class MainView {
+public class MainView extends ShowableView {
 
     private static MainView instance;
 
@@ -25,17 +25,16 @@ public class MainView {
         return frame;
     }
 
-    private JFrame frame;
-
-    private final int sizeX = 450;
-    private final int sizeY = 500;
-    private final Dimension frameSize = new Dimension(sizeX, sizeY);
+    protected final int sizeX = 500;
+    protected final int sizeY = 600;
 
     private LoginView loginView;
     private GameView gameView;
     private RegistrationView registrationView;
 
     private MainView() {
+        this.frameSize = new Dimension(sizeX, sizeY);
+
         this.registrationView = new RegistrationView();
         this.loginView = new LoginView();
         this.gameView = new GameView();
@@ -65,15 +64,6 @@ public class MainView {
         return instance;
     }
 
-    private void applyPanel(JPanel panel) {
-        panel.setVisible(false);
-        frame.setContentPane(panel);
-        panel.setSize(this.frameSize);
-        panel.setMinimumSize(this.frameSize);
-        frame.repaint();
-        panel.setVisible(true);
-    }
-
     public void showRegistrationView() {
         this.applyPanel(this.registrationView.getPnlRegistration());
     }
@@ -84,5 +74,15 @@ public class MainView {
 
     public void showGameView() {
         this.applyPanel(this.gameView.getPnlGame());
+        ClientController.getInstance().pullData();
+        this.gameView.refresh();
+    }
+
+    public void showGame(Game game) {
+        DuelView.openFor(game);
+    }
+
+    public GameView getGameView() {
+        return gameView;
     }
 }

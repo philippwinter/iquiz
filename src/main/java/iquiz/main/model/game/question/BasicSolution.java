@@ -22,11 +22,27 @@ public abstract class BasicSolution implements Serializable {
 
     private boolean isCorrect;
 
-    public BasicSolution(boolean isCorrect) {
+    protected String text;
+
+    public BasicSolution(String text, boolean isCorrect) {
         this.isCorrect = isCorrect;
+        this.text = text;
     }
 
     public boolean isCorrect() {
         return isCorrect;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("BasicSolution{");
+        sb.append("isCorrect=").append(isCorrect);
+        sb.append(", text='").append(text).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 }

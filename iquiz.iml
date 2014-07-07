@@ -12,13 +12,10 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="jGoodies" level="project" />
-    <orderEntry type="library" name="jgoodies-forms-1.8.0" level="project" />
-    <orderEntry type="library" name="jgoodies-common-1.8.0" level="project" />
-    <orderEntry type="library" name="jgoodies-common-1.8.0-javadoc" level="project" />
-    <orderEntry type="library" name="jgoodies-forms-1.8.0-javadoc" level="project" />
-    <orderEntry type="library" name="communication" level="project" />
-    <orderEntry type="library" name="jcalendar-1.4" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: communication" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: jcalendar-1.4" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: jgoodies-common-1.8.0" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: jgoodies-forms-1.8.0" level="project" />
   </component>
 </module>
 

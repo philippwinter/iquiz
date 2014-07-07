@@ -22,6 +22,20 @@ public enum Category {
     NATURE,
     INTERNATIONAL,
     RELIGION,
-    COMPUTERS
+    COMPUTERS;
 
+    public static Category any() {
+        Category[] categories = Category.values();
+
+        return categories[(int) (Math.random()*categories.length)];
+    }
+
+    public String toCapitalizedString() {
+        String s = this.toString();
+        StringBuilder sb = new StringBuilder(s.length());
+        sb.append(s.charAt(0));
+        sb.append(s.substring(1, s.length()).toLowerCase());
+
+        return sb.toString();
+    }
 }

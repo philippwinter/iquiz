@@ -8,8 +8,6 @@
 
 package iquiz.main.model;
 
-import iquiz.main.model.game.Player;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -27,7 +25,7 @@ public class Logging {
 
     private static SimpleDateFormat dateFormatter = new SimpleDateFormat("HH:mm:ss.SSS");
 
-    public static void log(Priority priority, Object... messages){
+    public static synchronized void log(Priority priority, Object... messages){
         String timeString = dateFormatter.format(new Date());
 
         Thread currentThread = Thread.currentThread();
@@ -37,7 +35,7 @@ public class Logging {
         StringBuilder txt = new StringBuilder(100);
 
         for(Object message : messages){
-            txt.append(message.toString().replace("\n", "\n\t"));
+            txt.append(message == null ? "null" : message.toString().replace("\n", "\n\t"));
             txt.append("\t");
         }
 

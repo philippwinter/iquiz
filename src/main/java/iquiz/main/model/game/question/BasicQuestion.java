@@ -12,39 +12,38 @@
  */
 package iquiz.main.model.game.question;
 
+import iquiz.main.model.game.Player;
+
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 /**
  *
  * @author HTS1205U13
  */
-public abstract class BasicQuestion implements Serializable{
+public abstract class BasicQuestion implements Serializable, Cloneable{
 
     private String questionText;
 
-    private Date timeAsked;
+    protected Category category;
 
-    private Category category;
+    protected ArrayList<BasicSolution> solutions = new ArrayList<>();
 
-    private BasicSolution solutionChosen;
+    private HashMap<Player, BasicSolution> chosenAnswers = new HashMap<>(2);
 
-    public BasicQuestion factory(Category category) {
-        switch((int) (Math.random() * 3)){
-            case 0: return new EstimationQuestion(category);
-            case 1: return new MultipleChoiceQuestion(category);
-            case 2: return new PictureQuestion(category);
-        }
-
-        throw new RuntimeException("ERROR: Could not construct any question :( doh");
+    public static BasicQuestion factory() {
+        return QuestionPool.getInstance().getRandom();
     }
 
     protected BasicQuestion(Category category){
-        this.selectQuestion();
         this.category = category;
     }
 
-    protected abstract void selectQuestion();
+    public ArrayList<BasicSolution> getSolutions() {
+        return solutions;
+    }
 
     public Category getCategory() {
         return category;
@@ -54,19 +53,31 @@ public abstract class BasicQuestion implements Serializable{
         return questionText;
     }
 
-    public Date getTimeAsked() {
-        return timeAsked;
-    }
-
-    public BasicSolution getSolutionChosen() {
-        return solutionChosen;
-    }
-
-    public void setSolutionChosen(BasicSolution solutionChosen) {
-        this.solutionChosen = solutionChosen;
-    }
-
     protected void setQuestionText(String questionText) {
         this.questionText = questionText;
+    }
+
+    public HashMap<Player, BasicSolution> getChosenAnswers() {
+        return chosenAnswers;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("BasicQuestion{");
+        sb.append("questionText='").append(questionText).append('\'');
+        sb.append(", category=").append(category);
+        sb.append(", solutions=").append(solutions);
+        sb.append(", chosenAnswers=").append(chosenAnswers);
+        sb.append('}');
+        return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o){
+        if(o instanceof BasicQuestion){
+            BasicQuestion bq = (BasicQuestion) o;
+            return bq.category == this.category && bq.questionText.equals(this.questionText);
+        }
+        return false;
     }
 }
